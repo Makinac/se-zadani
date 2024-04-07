@@ -6,25 +6,29 @@ error_reporting(E_ALL);
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $time = $_POST['time'] ?? '';
 
-    $apiUrl = 'http://49.13.93.232/PID/api.php/postPointOfSale';
-    $data = [
-        'time' => $time
-    ];
-
-    $curl = curl_init($apiUrl);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));
-
-    $response = curl_exec($curl);
-
-    if ($response === false) {
-        $errorMessage = 'Chyba při volání API: ' . curl_error($curl);
+    if ($time == '') {
+        $errorMessage = "Zadej čas";
     } else {
-        $errorMessage = '';
-        $responseData = json_decode($response, true);
+        $apiUrl = 'http://49.13.93.232/PID/api.php/postPointOfSale';
+        $data = [
+            'time' => $time
+        ];
+    
+        $curl = curl_init($apiUrl);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));
+    
+        $response = curl_exec($curl);
+    
+        if ($response === false) {
+            $errorMessage = 'Chyba při volání API: ' . curl_error($curl);
+        } else {
+            $errorMessage = '';
+            $responseData = json_decode($response, true);
+        }
+    
+        curl_close($curl);
     }
-
-    curl_close($curl);
 }
 ?>
 <!DOCTYPE html>
