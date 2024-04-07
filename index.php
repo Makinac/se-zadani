@@ -36,10 +36,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
     <h2>PID Time</h2>
-    <form action="test.php" method="post">
+    <form action="index.php" method="post">
         <label for="time">Čas:</label><br>
         <input type="time" id="time" name="time"><br><br>
-        <input type="submit" value="Testovat">
+        <input type="submit" value="Odeslat">
     </form>
 
     <?php if (!empty($errorMessage)): ?>
