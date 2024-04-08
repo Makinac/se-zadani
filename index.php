@@ -17,8 +17,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $errorMessage = "Zadej čas";
     }
 
-    print_r($date);
-
     if ($errorMessage == "") {
         $apiUrl = 'http://49.13.93.232/PID/api.php/postPointOfSale';
 
@@ -68,7 +66,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <table>
             <tr>
                 <th>Jméno 📜</th>
-                <th>Type 🔧</th>
                 <th>Adresa 🗺️</th>
                 <th>Otevírací Doba ⌛</th>
             </tr>
@@ -77,7 +74,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     ?>
                         <tr>
                             <td><?php echo $point["name"]; ?></td>
-                            <td><?php echo $point["type"]; ?></td>
                             <td><?php echo $point["address"]; ?></td>
                             <td><?php echo $point["openingHours"]; ?></td>
                         </tr>
@@ -90,5 +86,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <?php print_r("<pre>"); print_r($responseData); print_r("</pre>")?>
     <?php endif; ?>
     <br>
+
+    <script>
+        function setCurrentDateTime() {
+        var now = new Date();
+        var day = now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2);
+        var time = ('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2);
+        document.getElementById('day').value = day;
+        document.getElementById('time').value = time;
+        }
+
+        window.onload = setCurrentDateTime;
+    </script>
 </body>
 </html>
