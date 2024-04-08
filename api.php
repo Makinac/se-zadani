@@ -92,7 +92,7 @@ switch($_SERVER['REQUEST_METHOD']) {
                 }
   
                 http_response_code(200);
-                $response = array("status" => "ok", "data" => $filteredPointsOfSale);
+                $response = array("status" => "ok", "data" => $openPointsOfSale);
                 echo json_encode($response);
                 exit(); 
             default:

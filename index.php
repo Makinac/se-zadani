@@ -79,7 +79,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <td><?php echo $point["name"]; ?></td>
                             <td><?php echo $point["type"]; ?></td>
                             <td><?php echo $point["address"]; ?></td>
-                            <td><?php echo $point["openingHoursHours"]; ?></td>
+                            <td><?php echo $point["openingHours"]; ?></td>
                         </tr>
                     <?php 
                 }
