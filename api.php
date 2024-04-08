@@ -9,10 +9,21 @@ switch($_SERVER['REQUEST_METHOD']) {
                 global $pdo;
 
                 $time = $_POST['time'] ?? '';
+                $date = $_POST['date'] ?? '';
+
+                $checkTime = strtotime($time);
+                $date = (date('w', strtotime($date)) + 6) % 7;
 
                 if (!$time) {
                     http_response_code(400);
                     $response = array("status" => "error", "message" => "No Time");
+                    echo json_encode($response);
+                    exit(); 
+                }
+
+                if ($date == "") {
+                    http_response_code(400);
+                    $response = array("status" => "error", "message" => "No Date");
                     echo json_encode($response);
                     exit(); 
                 }
@@ -21,53 +32,67 @@ switch($_SERVER['REQUEST_METHOD']) {
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute();
                 
-                $openingHoursArray = array();
+                $mysqlDataArray = array();
                 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    $openingHoursArray[] = $row;
+                    $mysqlDataArray[] = $row;
                 }
 
-                $openPointsOfSale = array();
-
-                $checkTime = strtotime($time);
-
-                foreach ($openingHoursArray as $store) {
-                    $hoursArray = json_decode($store['openingHours'], true);
-                    $convertedHoursArray = array();
-
-                    foreach ($hoursArray as $array) {
-                        $convertedHoursArray[] = $array['hours'];
-                    }
-
-                    foreach ($convertedHoursArray as $hoursArray) {
-                        $ranges = strpos($hoursArray, ',') !== false ? explode(',', $hoursArray) : [$hoursArray];
-                    
-                        foreach ($ranges as $range) {
-                            $rangeParts = explode('-', $range);
-                            
-                            if (count($rangeParts) == 2) {
-                                list($start, $end) = $rangeParts;
-                                $startTime = strtotime($start);
-                                $endTime = strtotime($end);
-                    
-                                if ($checkTime >= $startTime && $checkTime <= $endTime) {
-                                    $openPointsOfSale[] = [
-                                        "name" => $store['name'],
-                                        "type" => $store['type'],
-                                        "address" => $store['address'],
-                                        "openingHours" => $store['openingHours'],
-                                        "raw" => $store
-                                    ];
-                                    break 2;
-                                }
-                            }
+                $filteredPointsOfSale = array();
+                foreach ($mysqlDataArray as $mysqlDataValuable) {
+                    $hoursJson = json_decode($mysqlDataValuable["openingHours"]);
+                    foreach ($hoursJson as $hoursJsonValuable) {
+                        if ($date >= $hoursJsonValuable->from && $date <= $hoursJsonValuable->to) {
+                            $filteredPointsOfSale[] = [
+                                "id" => $mysqlDataValuable['id'],
+                                "type" => $mysqlDataValuable['type'],
+                                "name" => $mysqlDataValuable['name'],
+                                "address" => $mysqlDataValuable['address'],
+                                "openingHoursFrom" => $hoursJsonValuable->from,
+                                "openingHoursTo" => $hoursJsonValuable->to,
+                                "openingHoursHours" => $hoursJsonValuable->hours,
+                                "lat" => $mysqlDataValuable['lat'],
+                                "lon" => $mysqlDataValuable['lon'],
+                                "services" => $mysqlDataValuable['services'],
+                                "payMethods" => $mysqlDataValuable['payMethods']
+                            ]; 
+                            break;           
                         }
                     }
-                    
-                }  
+                }
 
+                
+                $openPointsOfSale = array();
+                
+                foreach ($filteredPointsOfSale as $filteredPointsOfSaleValuable) {
+                    $openingHours = $filteredPointsOfSaleValuable["openingHoursHours"];
+                    
+                    if (strpos($openingHours, ',') !== false) {
+                        $hoursArray = explode(',', $openingHours);
+                    } else {
+                        $hoursArray = [$openingHours];
+                    }
+                    
+                    foreach ($hoursArray as $hoursRange) {
+                        $Hours = explode('-', $hoursRange);
+                        list($start, $end) = $Hours;
+                        $startTime = strtotime($start);
+                        $endTime = strtotime($end);
+                
+                        if ($checkTime >= $startTime && $checkTime <= $endTime) {
+                            $openPointsOfSale[] = [
+                                "name" => $filteredPointsOfSaleValuable['name'],
+                                "type" => $filteredPointsOfSaleValuable['type'],
+                                "address" => $filteredPointsOfSaleValuable['address'],
+                                "openingHours" => $filteredPointsOfSaleValuable['openingHoursHours'],
+                                "raw" => $filteredPointsOfSaleValuable
+                            ];
+                            break;
+                        }
+                    }
+                }
   
                 http_response_code(200);
-                $response = array("status" => "ok", "data" => $openPointsOfSale);
+                $response = array("status" => "ok", "data" => $filteredPointsOfSale);
                 echo json_encode($response);
                 exit(); 
             default:

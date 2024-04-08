@@ -5,13 +5,26 @@ ini_set('max_execution_time', 300);
 error_reporting(E_ALL);
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $time = $_POST['time'] ?? '';
+    $date = $_POST['day'] ?? '';
+
+    $errorMessage = "";
+
+    if ($date == '') {
+        $errorMessage = "Zadej datum";
+    }
 
     if ($time == '') {
         $errorMessage = "Zadej čas";
-    } else {
+    }
+
+    print_r($date);
+
+    if ($errorMessage == "") {
         $apiUrl = 'http://49.13.93.232/PID/api.php/postPointOfSale';
+
         $data = [
-            'time' => $time
+            'time' => $time,
+            'date' => $date
         ];
     
         $curl = curl_init($apiUrl);
@@ -43,6 +56,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <form action="index.php" method="post">
         <label for="time">Čas:</label><br>
         <input type="time" id="time" name="time"><br><br>
+        <label for="day">Datum:</label><br>
+        <input type="date" id="day" name="day"><br><br>
         <input type="submit" value="Odeslat">
     </form>
 
@@ -59,19 +74,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </tr>
             <?php 
                 foreach ($responseData["data"] as $point){
-                    $hours_array = json_decode($point["openingHours"], true);
-                    $hours_string = '';
-
-                    foreach ($hours_array as $item) {
-                        $hours_string .= $item['hours'] . ', ';
-                    }
-                    $hours_string = rtrim($hours_string, ', ');
                     ?>
                         <tr>
                             <td><?php echo $point["name"]; ?></td>
                             <td><?php echo $point["type"]; ?></td>
                             <td><?php echo $point["address"]; ?></td>
-                            <td><?php echo $hours_string; ?></td>
+                            <td><?php echo $point["openingHoursHours"]; ?></td>
                         </tr>
                     <?php 
                 }
