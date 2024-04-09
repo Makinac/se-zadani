@@ -1,4 +1,5 @@
 Možnost otestovat zde > http://49.13.93.232/PID/index.php
+Doba vypracování je asi 14 Hodin.
 
 Zadání:
 
